@@ -31,7 +31,7 @@ def print_test_group_subheader(subgroup_name: str) -> None:
     print(f"\n{GREY}{BULLET} TEST {subgroup_name}{RESET}")
 
 def print_header() -> None:
-    print("Running tests...\n")
+    print("Running tests...")
 
 def print_footer() -> None:
     if failed_count == 0:
