@@ -34,9 +34,15 @@ def print_header() -> None:
     print("Running tests...")
 
 def print_footer() -> None:
+    message = ""
     if failed_count == 0:
-        print(f"\n{GREEN}{TICK} {passed_count} / {total_test_count} tests passed.{RESET}")
+        message = f"\n{GREEN}{TICK} {passed_count} / {total_test_count} tests passed.{RESET}"
     elif passed_count != 0:
-        print(f"\n{YELLOW}{WARNING} {passed_count} / {total_test_count} tests passed.{RESET}")
+        message = f"\n{YELLOW}{WARNING} {passed_count} / {total_test_count} tests passed.{RESET}"
     else:
-        print(f"\n{RED}{CROSS} {passed_count} / {total_test_count} tests passed.{RESET}")
+        message = f"\n{RED}{CROSS} {passed_count} / {total_test_count} tests passed.{RESET}"
+
+    if failed_count > 0:
+        raise SystemExit(message)
+
+    print(message)
