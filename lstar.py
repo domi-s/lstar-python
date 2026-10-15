@@ -2,6 +2,25 @@ from utils.definitions import Word, Alphabet, MembershipQuery, EquivalenceQuery
 from utils.constants import EPSILON
 from utils.dfa import DFA
 
+class LStarTelemetry:
+    """Telemetry for the L* algorithm."""
+
+    membership_queries: int
+    equivalence_queries: int
+
+    def __init__(self):
+        self.membership_queries = 0
+        self.equivalence_queries = 0
+
+    def record_membership_query(self):
+        self.membership_queries += 1
+
+    def record_equivalence_query(self):
+        self.equivalence_queries += 1
+
+    def __str__(self):
+        return f"Membership queries: {self.membership_queries}, Equivalence queries: {self.equivalence_queries}"
+
 class ObservationTable:
     alphabet: Alphabet
     membership_query: MembershipQuery
@@ -123,9 +142,14 @@ def lstar(alphabet: Alphabet, membership_query: MembershipQuery, equivalence_que
     a counterexample word, or None when the hypothesis is correct.
     """
 
+    telemetry = LStarTelemetry()
+
+    membership_query_with_telemetry = lambda word: (telemetry.record_membership_query(), membership_query(word))[1]
+    equivalence_query_with_telemetry = lambda dfa: (telemetry.record_equivalence_query(), equivalence_query(dfa))[1]
+
     print(f"Starting L* algorithm...")
 
-    table = ObservationTable(alphabet, membership_query)
+    table = ObservationTable(alphabet, membership_query_with_telemetry)
 
     while True:
         while True:
@@ -138,10 +162,10 @@ def lstar(alphabet: Alphabet, membership_query: MembershipQuery, equivalence_que
             break
 
         dfa = table.to_dfa()
-        counterexample = equivalence_query(dfa)
+        counterexample = equivalence_query_with_telemetry(dfa)
 
         if counterexample is None:
-            print(f"Learning complete.")
+            print(f"Learning complete. {telemetry}")
             return dfa
 
         table.resolve_counterexample(counterexample)
