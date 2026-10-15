@@ -26,10 +26,10 @@ class ObservationTable:
     membership_query: MembershipQuery
 
     S: list[Word]
-    """The set of prefixes that represent the states of the hypothesis DFA. Each prefix is a word in the language."""
+    """The set of prefixes that represent the states of the hypothesis DFA. Each prefix is a word over the alphabet."""
 
     E: list[Word]
-    """The set of suffixes that distinguish the states of the hypothesis DFA. Each suffix is a word in the language."""
+    """The set of suffixes that distinguish the states of the hypothesis DFA. Each suffix is a word over the alphabet."""
 
     cache: dict[Word, bool]
     """The cache of previously asked membership queries. Keys are words, values are True/False."""
