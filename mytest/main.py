@@ -48,20 +48,20 @@ dfa_ends_with_0101 = DFA(
 )
 """DFA that accepts words that end with 0101."""
 
-dfa_ends_with_10_ones = DFA(
+dfa_ends_with_100_ones = DFA(
     alphabet=alphabet_0_1,
-    states=set(range(11)),
+    states=set(range(101)),
     initial_state=0,
-    accepting_states={10},
+    accepting_states={100},
     transitions={
         i: {
             "0": 0,
-            "1": min(i + 1, 10),
+            "1": min(i + 1, 100),
         }
-        for i in range(11)
+        for i in range(101)
     },
 )
-"""DFA that accepts words that end with exactly 10 1s."""
+"""DFA that accepts words that end with exactly 100 1s."""
 
 def equivalence_query(reference, hypothesis):
     """Return a distinguishing word, or None if two DFAs are equivalent.
@@ -112,12 +112,14 @@ dfa_lstar_ends_with_0101 = lstar(
 )
 """DFA learned by L* algorithm for words that end with 0101."""
 
-dfa_lstar_ends_with_10_ones = lstar(
+dfa_lstar_ends_with_100_ones = lstar(
     alphabet=alphabet_0_1,
-    membership_query=lambda word: word.count("1") == 10,
-    equivalence_query=lambda hypothesis: equivalence_query(dfa_ends_with_10_ones, hypothesis),
+    membership_query=dfa_ends_with_100_ones.accepts,
+    equivalence_query=lambda hypothesis: equivalence_query(
+        dfa_ends_with_100_ones, hypothesis
+    ),
 )
-"""DFA learned by L* algorithm for words that end with exactly 10 1s."""
+"""DFA learned by L* algorithm for words that end with exactly 100 1s."""
 
 def test_dfa_even_ones():
     print_test_group_subheader("dfa_even_ones")
@@ -154,16 +156,16 @@ def test_dfa_ends_with_0101():
     print_test_result("dfa_ends_with_0101 accepts 110101", dfa_ends_with_0101.accepts("110101"))
     print_test_result("dfa_ends_with_0101 does not accept 110100", not dfa_ends_with_0101.accepts("110100"))
 
-def test_dfa_ends_with_10_ones():
-    print_test_group_subheader("dfa_ends_with_10_ones")
+def test_dfa_ends_with_100_ones():
+    print_test_group_subheader("dfa_ends_with_100_ones")
 
-    print_test_result("dfa_ends_with_10_ones does not accept empty string", not dfa_ends_with_10_ones.accepts(""))
-    print_test_result("dfa_ends_with_10_ones does not accept 0", not dfa_ends_with_10_ones.accepts("0"))
-    print_test_result("dfa_ends_with_10_ones does not accept 1", not dfa_ends_with_10_ones.accepts("1"))
-    print_test_result("dfa_ends_with_10_ones does not accept 111", not dfa_ends_with_10_ones.accepts("111"))
-    print_test_result("dfa_ends_with_10_ones accepts 111...1 (10 times)", dfa_ends_with_10_ones.accepts("1" * 10))
-    print_test_result("dfa_ends_with_10_ones does not accept 111...1 (9 times)", not dfa_ends_with_10_ones.accepts("1" * 9))
-    print_test_result("dfa_ends_with_10_ones accepts 111...1 (11 times)", dfa_ends_with_10_ones.accepts("1" * 11))
+    print_test_result("dfa_ends_with_100_ones does not accept empty string", not dfa_ends_with_100_ones.accepts(""))
+    print_test_result("dfa_ends_with_100_ones does not accept 0", not dfa_ends_with_100_ones.accepts("0"))
+    print_test_result("dfa_ends_with_100_ones does not accept 1", not dfa_ends_with_100_ones.accepts("1"))
+    print_test_result("dfa_ends_with_100_ones does not accept 111", not dfa_ends_with_100_ones.accepts("111"))
+    print_test_result("dfa_ends_with_100_ones accepts 111...1 (100 times)", dfa_ends_with_100_ones.accepts("1" * 100))
+    print_test_result("dfa_ends_with_100_ones does not accept 111...1 (99 times)", not dfa_ends_with_100_ones.accepts("1" * 99))
+    print_test_result("dfa_ends_with_100_ones accepts 111...1 (101 times)", dfa_ends_with_100_ones.accepts("1" * 101))
 
 def test_dfa_lstar_even_ones():
     print_test_group_subheader("dfa_lstar_even_ones")
@@ -205,17 +207,17 @@ def test_dfa_lstar_ends_with_0101():
     print_test_result("dfa_lstar_ends_with_0101 does not accept 110100", not dfa_lstar_ends_with_0101.accepts("110100"))
 
 
-def test_dfa_lstar_ends_with_10_ones():
-    print_test_group_subheader("dfa_lstar_ends_with_10_ones")
+def test_dfa_lstar_ends_with_100_ones():
+    print_test_group_subheader("dfa_lstar_ends_with_100_ones")
 
-    print_test_result("dfa_lstar_ends_with_10_ones.states == {0, 1, 2, ..., 10}", dfa_lstar_ends_with_10_ones.states == set(range(11)))
-    print_test_result("dfa_lstar_ends_with_10_ones.transitions == {i: {'0': 0, '1': min(i + 1, 10)} for i in range(11)}", dfa_lstar_ends_with_10_ones.transitions == {i: {"0": 0, "1": min(i + 1, 10)} for i in range(11)})
-    print_test_result("dfa_lstar_ends_with_10_ones does not accept empty string", not dfa_lstar_ends_with_10_ones.accepts(""))
-    print_test_result("dfa_lstar_ends_with_10_ones does not accept 1", not dfa_lstar_ends_with_10_ones.accepts("1"))
-    print_test_result("dfa_lstar_ends_with_10_ones does not accept 111", not dfa_lstar_ends_with_10_ones.accepts("111"))
-    print_test_result("dfa_lstar_ends_with_10_ones accepts 111...1 (10 times)", dfa_lstar_ends_with_10_ones.accepts("1" * 10))
-    print_test_result("dfa_lstar_ends_with_10_ones does not accept 111...1 (9 times)", not dfa_lstar_ends_with_10_ones.accepts("1" * 9))
-    print_test_result("dfa_lstar_ends_with_10_ones accepts 111...1 (11 times)", dfa_lstar_ends_with_10_ones.accepts("1" * 11))
+    print_test_result("dfa_lstar_ends_with_100_ones.states == {0, 1, 2, ..., 100}", dfa_lstar_ends_with_100_ones.states == set(range(101)))
+    print_test_result("dfa_lstar_ends_with_100_ones.transitions == {i: {'0': 0, '1': min(i + 1, 100)} for i in range(101)}", dfa_lstar_ends_with_100_ones.transitions == {i: {"0": 0, "1": min(i + 1, 100)} for i in range(101)})
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept empty string", not dfa_lstar_ends_with_100_ones.accepts(""))
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept 1", not dfa_lstar_ends_with_100_ones.accepts("1"))
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept 111", not dfa_lstar_ends_with_100_ones.accepts("111"))
+    print_test_result("dfa_lstar_ends_with_100_ones accepts 111...1 (100 times)", dfa_lstar_ends_with_100_ones.accepts("1" * 100))
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept 111...1 (99 times)", not dfa_lstar_ends_with_100_ones.accepts("1" * 99))
+    print_test_result("dfa_lstar_ends_with_100_ones accepts 111...1 (101 times)", dfa_lstar_ends_with_100_ones.accepts("1" * 101))
 
 def main():
     print_header()
@@ -225,14 +227,14 @@ def main():
     test_dfa_even_ones()
     test_dfa_ends_with_01()
     test_dfa_ends_with_0101()
-    test_dfa_ends_with_10_ones()
+    test_dfa_ends_with_100_ones()
 
     print_test_group_header("L* Algorithm Tests")
 
     test_dfa_lstar_even_ones()
     test_dfa_lstar_ends_with_01()
     test_dfa_lstar_ends_with_0101()
-    test_dfa_lstar_ends_with_10_ones()
+    test_dfa_lstar_ends_with_100_ones()
 
     print_footer()
 
