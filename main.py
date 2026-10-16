@@ -1,4 +1,6 @@
-import mytest.main as unit_tests
+import unittest
 
 if __name__ == "__main__":
-    unit_tests.main()
+    suite = unittest.defaultTestLoader.discover("tests")
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    raise SystemExit(not result.wasSuccessful())
