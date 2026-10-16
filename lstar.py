@@ -166,13 +166,34 @@ class ObservationTable:
             transitions=transitions,
         )
 
-    def resolve_counterexample(self, word):
-        """Add the counterexample and all its prefixes to S."""
-        for length in range(len(word) + 1):
-            prefix = word[:length]
+    def resolve_counterexample(self, word, hypothesis):
+        """Add a distinguishing prefix and suffix found by binary search."""
+        representatives = {}
+        for prefix in self.S:
+            representatives.setdefault(hypothesis.run(prefix), prefix)
 
-            if prefix not in self.S:
-                self.S.append(prefix)
+        target_answer = self.query(word)
+        low = 0
+        high = len(word)
+
+        while high - low > 1:
+            midpoint = (low + high) // 2
+            state = hypothesis.run(word[:midpoint])
+            representative = representatives[state]
+            suffix = word[midpoint:]
+
+            if self.query(representative + suffix) == target_answer:
+                low = midpoint
+            else:
+                high = midpoint
+
+        prefix = word[:high]
+        suffix = word[high:]
+
+        if prefix not in self.S:
+            self.S.append(prefix)
+        if suffix not in self.E:
+            self.E.append(suffix)
 
 def lstar(alphabet: Alphabet, membership_query: MembershipQuery, equivalence_query: EquivalenceQuery) -> DFA:
     """Learn a DFA using membership and equivalence queries.
@@ -214,4 +235,4 @@ def lstar(alphabet: Alphabet, membership_query: MembershipQuery, equivalence_que
             print(f"Learning complete. {telemetry}")
             return dfa
 
-        table.resolve_counterexample(counterexample)
+        table.resolve_counterexample(counterexample, dfa)
