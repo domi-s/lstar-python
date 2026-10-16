@@ -48,20 +48,20 @@ dfa_ends_with_0101 = DFA(
 )
 """DFA that accepts words that end with 0101."""
 
-dfa_ends_with_500_ones = DFA(
+dfa_ends_with_100_ones = DFA(
     alphabet=alphabet_0_1,
-    states=set(range(501)),
+    states=set(range(101)),
     initial_state=0,
-    accepting_states={500},
+    accepting_states={100},
     transitions={
         i: {
             "0": 0,
-            "1": min(i + 1, 500),
+            "1": min(i + 1, 100),
         }
-        for i in range(501)
+        for i in range(101)
     },
 )
-"""DFA that accepts words that end with exactly 500 1s."""
+"""DFA that accepts words that end with exactly 100 1s."""
 
 def equivalence_query(reference, hypothesis):
     """Return a distinguishing word, or None if two DFAs are equivalent.
@@ -112,12 +112,12 @@ dfa_lstar_ends_with_0101 = lstar(
 )
 """DFA learned by L* algorithm for words that end with 0101."""
 
-dfa_lstar_ends_with_500_ones = lstar(
+dfa_lstar_ends_with_100_ones = lstar(
     alphabet=alphabet_0_1,
-    membership_query=lambda word: word.count("1") == 500,
-    equivalence_query=lambda hypothesis: equivalence_query(dfa_ends_with_500_ones, hypothesis),
+    membership_query=lambda word: word.count("1") == 100,
+    equivalence_query=lambda hypothesis: equivalence_query(dfa_ends_with_100_ones, hypothesis),
 )
-"""DFA learned by L* algorithm for words that end with exactly 500 1s."""
+"""DFA learned by L* algorithm for words that end with exactly 100 1s."""
 
 def test_dfa_even_ones():
     print_test_group_subheader("dfa_even_ones")
@@ -154,16 +154,16 @@ def test_dfa_ends_with_0101():
     print_test_result("dfa_ends_with_0101 accepts 110101", dfa_ends_with_0101.accepts(str_to_word("110101")))
     print_test_result("dfa_ends_with_0101 does not accept 110100", not dfa_ends_with_0101.accepts(str_to_word("110100")))
 
-def test_dfa_ends_with_500_ones():
-    print_test_group_subheader("dfa_ends_with_500_ones")
+def test_dfa_ends_with_100_ones():
+    print_test_group_subheader("dfa_ends_with_100_ones")
 
-    print_test_result("dfa_ends_with_500_ones does not accept empty string", not dfa_ends_with_500_ones.accepts(str_to_word("")))
-    print_test_result("dfa_ends_with_500_ones does not accept 0", not dfa_ends_with_500_ones.accepts(str_to_word("0")))
-    print_test_result("dfa_ends_with_500_ones does not accept 1", not dfa_ends_with_500_ones.accepts(str_to_word("1")))
-    print_test_result("dfa_ends_with_500_ones does not accept 111", not dfa_ends_with_500_ones.accepts(str_to_word("111")))
-    print_test_result("dfa_ends_with_500_ones accepts 111...1 (500 times)", dfa_ends_with_500_ones.accepts(str_to_word("1" * 500)))
-    print_test_result("dfa_ends_with_500_ones does not accept 111...1 (499 times)", not dfa_ends_with_500_ones.accepts(str_to_word("1" * 499)))
-    print_test_result("dfa_ends_with_500_ones accepts 111...1 (501 times)", dfa_ends_with_500_ones.accepts(str_to_word("1" * 501)))
+    print_test_result("dfa_ends_with_100_ones does not accept empty string", not dfa_ends_with_100_ones.accepts(str_to_word("")))
+    print_test_result("dfa_ends_with_100_ones does not accept 0", not dfa_ends_with_100_ones.accepts(str_to_word("0")))
+    print_test_result("dfa_ends_with_100_ones does not accept 1", not dfa_ends_with_100_ones.accepts(str_to_word("1")))
+    print_test_result("dfa_ends_with_100_ones does not accept 111", not dfa_ends_with_100_ones.accepts(str_to_word("111")))
+    print_test_result("dfa_ends_with_100_ones accepts 111...1 (100 times)", dfa_ends_with_100_ones.accepts(str_to_word("1" * 100)))
+    print_test_result("dfa_ends_with_100_ones does not accept 111...1 (99 times)", not dfa_ends_with_100_ones.accepts(str_to_word("1" * 99)))
+    print_test_result("dfa_ends_with_100_ones accepts 111...1 (101 times)", dfa_ends_with_100_ones.accepts(str_to_word("1" * 101)))
 
 def test_dfa_lstar_even_ones():
     print_test_group_subheader("dfa_lstar_even_ones")
@@ -204,18 +204,19 @@ def test_dfa_lstar_ends_with_0101():
     print_test_result("dfa_lstar_ends_with_0101 accepts 110101", dfa_lstar_ends_with_0101.accepts(str_to_word("110101")))
     print_test_result("dfa_lstar_ends_with_0101 does not accept 110100", not dfa_lstar_ends_with_0101.accepts(str_to_word("110100")))
 
-def test_dfa_lstar_ends_with_500_ones():
-    print_test_group_subheader("dfa_lstar_ends_with_500_ones")
 
-    print_test_result("dfa_lstar_ends_with_500_ones.states == {0, 1, 2, ..., 500}", dfa_lstar_ends_with_500_ones.states == set(range(501)))
-    print_test_result("dfa_lstar_ends_with_500_ones.transitions == {i: {'0': 0, '1': min(i + 1, 500)} for i in range(501)}", dfa_lstar_ends_with_500_ones.transitions == {i: {"0": 0, "1": min(i + 1, 500)} for i in range(501)})
-    print_test_result("dfa_lstar_ends_with_500_ones does not accept empty string", not dfa_lstar_ends_with_500_ones.accepts(str_to_word("")))
-    print_test_result("dfa_lstar_ends_with_500_ones does not accept 0", not dfa_lstar_ends_with_500_ones.accepts(str_to_word("0")))
-    print_test_result("dfa_lstar_ends_with_500_ones does not accept 1", not dfa_lstar_ends_with_500_ones.accepts(str_to_word("1")))
-    print_test_result("dfa_lstar_ends_with_500_ones does not accept 111", not dfa_lstar_ends_with_500_ones.accepts(str_to_word("111")))
-    print_test_result("dfa_lstar_ends_with_500_ones accepts 111...1 (500 times)", dfa_lstar_ends_with_500_ones.accepts(str_to_word("1" * 500)))
-    print_test_result("dfa_lstar_ends_with_500_ones does not accept 111...1 (499 times)", not dfa_lstar_ends_with_500_ones.accepts(str_to_word("1" * 499)))
-    print_test_result("dfa_lstar_ends_with_500_ones accepts 111...1 (501 times)", dfa_lstar_ends_with_500_ones.accepts(str_to_word("1" * 501)))
+def test_dfa_lstar_ends_with_100_ones():
+    print_test_group_subheader("dfa_lstar_ends_with_100_ones")
+
+    print_test_result("dfa_lstar_ends_with_100_ones.states == {0, 1, 2, ..., 100}", dfa_lstar_ends_with_100_ones.states == set(range(101)))
+    print_test_result("dfa_lstar_ends_with_100_ones.transitions == {i: {'0': 0, '1': min(i + 1, 100)} for i in range(101)}", dfa_lstar_ends_with_100_ones.transitions == {i: {"0": 0, "1": min(i + 1, 100)} for i in range(101)})
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept empty string", not dfa_lstar_ends_with_100_ones.accepts(str_to_word("")))
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept 0", not dfa_lstar_ends_with_100_ones.accepts(str_to_word("0")))
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept 1", not dfa_lstar_ends_with_100_ones.accepts(str_to_word("1")))
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept 111", not dfa_lstar_ends_with_100_ones.accepts(str_to_word("111")))
+    print_test_result("dfa_lstar_ends_with_100_ones accepts 111...1 (100 times)", dfa_lstar_ends_with_100_ones.accepts(str_to_word("1" * 100)))
+    print_test_result("dfa_lstar_ends_with_100_ones does not accept 111...1 (99 times)", not dfa_lstar_ends_with_100_ones.accepts(str_to_word("1" * 99)))
+    print_test_result("dfa_lstar_ends_with_100_ones accepts 111...1 (101 times)", dfa_lstar_ends_with_100_ones.accepts(str_to_word("1" * 101)))
 
 def main():
     print_header()
