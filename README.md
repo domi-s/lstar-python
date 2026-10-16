@@ -12,7 +12,44 @@ cd lstar-python
 python main.py
 ```
 
-The tests include learning languages containing an even number of `1`s and ending in `01`.
+The normal suite checks 14 cases: parity, suffixes, substrings, forbidden
+patterns, binary divisibility, combined counters, and unary inputs. It includes
+a 1,000-state reference whose language needs only five states.
+
+Each case runs its accepted/rejected examples against both the reference DFA
+and its L* learned version. Tests also check transition structure, exact
+equivalence, and the learned state count without depending on state numbering.
+Learning runs inside tests, not during imports. No third-party packages are needed.
+
+```bash
+python -m unittest discover -s tests -v
+python main.py --large
+```
+
+The opt-in large suite adds 1,001-state trailing-ones and 257-state length-counter
+machines, plus a 10,002-state reference reducible to two states. All states in
+these large references are reachable. The same example and learning checks run
+for every large case; these runs can take longer.
+
+### Adding tests
+
+- `tests/cases/basic.py`: the original cases.
+- `tests/cases/counting.py` and `patterns.py`: more language families.
+- `tests/cases/large.py`: opt-in stress cases.
+- `tests/harness.py`: a small `DFACase` record and shared assertions.
+- `tests/test_dfas.py`: reference and learned DFA tests.
+- `tests/oracles.py`: exact equivalence checking for known DFAs.
+- `tests/test_oracles.py`: checks for the equivalence helper.
+
+Add a `DFACase(name, dfa, accepted, rejected, minimal_states)` to a case list.
+New case modules can be included in `DFATests.cases()`. Keep large cases in
+the separate large suite so normal runs stay quick.
+
+`check_examples(test, case, accepts)` takes any callable that maps a word to a
+boolean. Future teacher experiments can reuse those examples in a separate
+test module, with their own membership and counterexample-search functions.
+LLM/Ollama integrations are not implemented. The exact DFA oracle requires
+two known machines and cannot establish equivalence with an LLM.
 
 ## Usage
 
