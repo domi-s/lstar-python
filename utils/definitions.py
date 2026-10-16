@@ -1,4 +1,4 @@
-from collections.abc import Callable, Hashable
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING: # Avoiding circular import, there's probably a better way to do this
