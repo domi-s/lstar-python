@@ -72,6 +72,7 @@ class ObservationTable:
         self.E = [""]
 
         self.cache = {}
+        self.row_cache = {}
 
     def query(self, word):
         """Ask the membership oracle, reusing previously recorded answers."""
@@ -82,10 +83,16 @@ class ObservationTable:
 
     def row(self, prefix):
         """Answers obtained by appending every suffix in E."""
-        return tuple(
-            self.query(prefix + suffix)
-            for suffix in self.E
-        )
+        row = self.row_cache.get(prefix, ())
+
+        if len(row) < len(self.E):
+            row += tuple(
+                self.query(prefix + suffix)
+                for suffix in self.E[len(row):]
+            )
+            self.row_cache[prefix] = row
+
+        return row
 
     def resolve_closed(self):
         """Add a prefix if its row represents a new state."""
