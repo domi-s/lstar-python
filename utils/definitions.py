@@ -11,6 +11,3 @@ State = int
 
 MembershipQuery = Callable[[Word], bool]
 EquivalenceQuery = Callable[["DFA"], Word | None]
-
-def str_to_word(s: str) -> Word:
-    return tuple(s)
