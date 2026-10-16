@@ -1,3 +1,5 @@
+import time
+
 from utils.definitions import Word, Alphabet, MembershipQuery, EquivalenceQuery
 from utils.constants import EPSILON
 from utils.dfa import DFA
@@ -8,9 +10,16 @@ class LStarTelemetry:
     membership_queries: int
     equivalence_queries: int
 
+    start_time: float
+    end_time: float
+    last_notified_time: float
+
     def __init__(self):
         self.membership_queries = 0
         self.equivalence_queries = 0
+        self.start_time = 0.0
+        self.end_time = 0.0
+        self.last_notified_time = 0.0
 
     def record_membership_query(self):
         self.membership_queries += 1
@@ -18,8 +27,29 @@ class LStarTelemetry:
     def record_equivalence_query(self):
         self.equivalence_queries += 1
 
+    def start_timer(self):
+        self.start_time = time.time()
+        self.last_notified_time = self.start_time
+
+    def stop_timer(self):
+        self.end_time = time.time()
+
+    def elapsed_time(self):
+        if self.end_time == 0.0:
+            return time.time() - self.start_time
+        
+        return self.end_time - self.start_time
+
+    def should_notify(self, interval: float = 15.0):
+        """Check if enough time has passed since the last notification."""
+        current_time = time.time()
+        if current_time - self.last_notified_time >= interval:
+            self.last_notified_time = current_time
+            return True
+        return False
+
     def __str__(self):
-        return f"Membership queries: {self.membership_queries}, Equivalence queries: {self.equivalence_queries}"
+        return f"Membership queries: {self.membership_queries}, Equivalence queries: {self.equivalence_queries}, Elapsed time: {self.elapsed_time():.4f} seconds"
 
 class ObservationTable:
     alphabet: Alphabet
@@ -149,10 +179,15 @@ def lstar(alphabet: Alphabet, membership_query: MembershipQuery, equivalence_que
 
     print(f"Starting L* algorithm...")
 
+    telemetry.start_timer()
+
     table = ObservationTable(alphabet, membership_query_with_telemetry)
 
     while True:
         while True:
+            if telemetry.should_notify():
+                print(f"Still learning... {telemetry}")
+
             if table.resolve_closed():
                 continue
 
@@ -165,6 +200,7 @@ def lstar(alphabet: Alphabet, membership_query: MembershipQuery, equivalence_que
         counterexample = equivalence_query_with_telemetry(dfa)
 
         if counterexample is None:
+            telemetry.stop_timer()
             print(f"Learning complete. {telemetry}")
             return dfa
 
