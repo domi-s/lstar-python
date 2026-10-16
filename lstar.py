@@ -110,21 +110,24 @@ class ObservationTable:
 
     def resolve_consistent(self):
         """Distinguish equal rows whose next steps differ."""
-        for i, first in enumerate(self.S):
-            for second in self.S[i + 1:]:
-                if self.row(first) != self.row(second):
-                    continue
+        prefixes_by_row = {}
+        for prefix in self.S:
+            prefixes_by_row.setdefault(self.row(prefix), []).append(prefix)
 
-                for symbol in self.alphabet:
-                    for suffix in self.E:
-                        experiment = symbol + suffix
+        for prefixes in prefixes_by_row.values():
+            for i, first in enumerate(prefixes):
+                for second in prefixes[i + 1:]:
 
-                        first_answer = self.query(first + experiment)
-                        second_answer = self.query(second + experiment)
+                    for symbol in self.alphabet:
+                        for suffix in self.E:
+                            experiment = symbol + suffix
 
-                        if first_answer != second_answer:
-                            self.E.append(experiment)
-                            return True
+                            first_answer = self.query(first + experiment)
+                            second_answer = self.query(second + experiment)
+
+                            if first_answer != second_answer:
+                                self.E.append(experiment)
+                                return True
 
         return False
 
