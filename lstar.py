@@ -95,39 +95,48 @@ class ObservationTable:
         return row
 
     def resolve_closed(self):
-        """Add a prefix if its row represents a new state."""
+        """Add all new states discovered in this pass."""
         known_rows = {self.row(prefix) for prefix in self.S}
+        changed = False
 
-        for prefix in self.S:
+        for prefix in list(self.S):
             for symbol in self.alphabet:
                 extension = prefix + symbol
+                answers = self.row(extension)
 
-                if self.row(extension) not in known_rows:
+                if answers not in known_rows:
                     self.S.append(extension)
-                    return True
+                    known_rows.add(answers)
+                    changed = True
 
-        return False
-
+        return changed
+    
     def resolve_consistent(self):
         """Distinguish equal rows whose next steps differ."""
-        prefixes_by_row = {}
+        representatives = {}
+
         for prefix in self.S:
-            prefixes_by_row.setdefault(self.row(prefix), []).append(prefix)
+            answers = self.row(prefix)
 
-        for prefixes in prefixes_by_row.values():
-            for i, first in enumerate(prefixes):
-                for second in prefixes[i + 1:]:
+            if answers not in representatives:
+                representatives[answers] = prefix
+                continue
 
-                    for symbol in self.alphabet:
-                        for suffix in self.E:
-                            experiment = symbol + suffix
+            representative = representatives[answers]
 
-                            first_answer = self.query(first + experiment)
-                            second_answer = self.query(second + experiment)
+            for symbol in self.alphabet:
+                first_row = self.row(prefix + symbol)
+                second_row = self.row(representative + symbol)
 
-                            if first_answer != second_answer:
-                                self.E.append(experiment)
-                                return True
+                if first_row == second_row:
+                    continue
+
+                for i, (first, second) in enumerate(
+                    zip(first_row, second_row)
+                ):
+                    if first != second:
+                        self.E.append(symbol + self.E[i])
+                        return True
 
         return False
 
@@ -158,6 +167,8 @@ class ObservationTable:
                 next_row = self.row(prefix + symbol)
                 transitions[state][symbol] = row_to_state[next_row]
 
+        self.representatives = representatives
+
         return DFA(
             alphabet=self.alphabet,
             states=set(representatives),
@@ -166,20 +177,21 @@ class ObservationTable:
             transitions=transitions,
         )
 
-    def resolve_counterexample(self, word, hypothesis):
-        """Add a distinguishing prefix and suffix found by binary search."""
-        representatives = {}
-        for prefix in self.S:
-            representatives.setdefault(hypothesis.run(prefix), prefix)
-
+    def resolve_counterexample(self, word, hypothesis: DFA):
+        """Add a distinguishing prefix and suffix using binary search."""
         target_answer = self.query(word)
+
+        states = [hypothesis.initial_state]
+
+        for symbol in word:
+            states.append(hypothesis.step(states[-1], symbol))
+
         low = 0
         high = len(word)
 
         while high - low > 1:
             midpoint = (low + high) // 2
-            state = hypothesis.run(word[:midpoint])
-            representative = representatives[state]
+            representative = self.representatives[states[midpoint]]
             suffix = word[midpoint:]
 
             if self.query(representative + suffix) == target_answer:
@@ -187,11 +199,12 @@ class ObservationTable:
             else:
                 high = midpoint
 
-        prefix = word[:high]
+        prefix = self.representatives[states[low]] + word[low]
         suffix = word[high:]
 
         if prefix not in self.S:
             self.S.append(prefix)
+
         if suffix not in self.E:
             self.E.append(suffix)
 
