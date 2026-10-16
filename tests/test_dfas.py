@@ -1,20 +1,23 @@
 import unittest
 
 from lstar import lstar
-from tests.cases.basic import cases
+from tests.cases import basic, counting, patterns
 from tests.harness import check_examples, check_structure
 from tests.oracles import equivalence_query
 
 
 class DFATests(unittest.TestCase):
+    def cases(self):
+        return basic.cases() + counting.cases() + patterns.cases()
+
     def test_reference_dfas(self):
-        for case in cases():
+        for case in self.cases():
             with self.subTest(case=case.name):
                 check_structure(self, case.dfa)
                 check_examples(self, case, case.dfa.accepts)
 
     def test_learned_dfas(self):
-        for case in cases():
+        for case in self.cases():
             with self.subTest(case=case.name):
                 learned = lstar(
                     alphabet=case.dfa.alphabet,
